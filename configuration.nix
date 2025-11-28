@@ -42,23 +42,20 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-
-  # Enable the XFCE Desktop Environment.
+# Enable the XFCE Desktop Environment.
   services.xserver.displayManager.lightdm.enable = true;
   services.xserver.desktopManager.xfce.enable = true;
 
-  # Configure keymap in X11
+# Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
     variant = "";
   };
 
-  # Enable CUPS to print documents.
+# Enable CUPS to print documents.
   services.printing.enable = true;
 
-  # Enable sound with pipewire.
+# Enable sound with pipewire.
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -66,116 +63,182 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
+# If you want to use JACK applications, uncomment this
+#jack.enable = true;
 
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
+# use the example session manager (no others are packaged yet so this is enabled by default,
+# no need to redefine it in your config for now)
+#media-session.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+# Enable touchpad support (enabled default in most desktopManager).
+# services.xserver.libinput.enable = true;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+# Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nelson = {
     isNormalUser = true;
     description = "nelson";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel"  "docker" "libvirtd"];
     packages = with pkgs; [
-    #  thunderbird
+
+#  thunderbird
     ];
   };
 
-  # Enable automatic login for the user.
+# Enable automatic login for the user.
   services.displayManager.autoLogin.enable = true;
   services.displayManager.autoLogin.user = "nelson";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # Install firefox.
+# Install firefox.
   programs.firefox.enable = true;
 
-  # Allow unfree packages
+# Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.cudaSupport = true;
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
+  hardware.graphics.enable = true;
+  services.xserver.videoDrivers = [ "nvidia" ];
+  hardware.nvidia = {
+    modesetting.enable = true;
+    powerManagement.enable = false;
+    open = false;  # see the note above
+    nvidiaSettings = true;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+  };
+  boot.kernelParams = ["nvidia.NVreg_PreserveVideoMemoryAllocations=1"];
+
+  fonts.packages = with pkgs; [
+    nerd-fonts.fira-code
+    nerd-fonts.droid-sans-mono
+    nerd-fonts.hack
+  ];
+# List packages installed in system profile. To search, run:
+# $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
 
-	vim
-	neovim
-	git
-	tealdeer
-	wireplumber
-	go
-	rustup
-	cargo
-	wiremix
-	btop
-	ghostty
-	fzf
-	bat
-	choose
-	dust
-	fd
-	hyperfine
-	jql
-	ripgrep
-	rm-improved
-	zoxide
-	starship
-	bartib
-	mise
-	ollama
+    xclip
+    vim
+    neovim
+    git
+    tealdeer
+    wireplumber
+    go
+    rustup
+    cargo
+    wiremix
+    btop
+    ghostty
+    fzf
+    bat
+    choose
+    dust
+    fd
+    hyperfine
+    jql
+    ripgrep
+    rm-improved
+    zoxide
+    starship
+    bartib
+    mise
+    libgcc
+    gnumake
+    gcc15
+    docker
+    nvidia-container-toolkit
+    (pkgs.ollama.override { 
+     acceleration = "cuda";
+     })
   ];
 
- services.gnome.gnome-keyring.enable = true;
-
-  # enable Sway window manager
-  programs.sway = {
+  programs.steam = {
     enable = true;
-    wrapperFeatures.gtk = true;
+    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+      dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+      localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
   };
 
-services.greetd = {                                                      
-  enable = true;                                                         
-  settings = {                                                           
-    default_session = {                                                  
-      command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd sway";
-      user = "greeter";                                                  
-    };                                                                   
-  };                                                                     
+
+  virtualisation.docker = {
+    enable = true;
+  };
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
+
+
+  services.ollama = {
+    enable = true;
+    acceleration = false;
+  };
+  services.gnome.gnome-keyring.enable = true;
+
+# enable Sway window manager
+#   programs.sway = {
+#     enable = true;
+#     wrapperFeatures.gtk = true;
+#   };
+#
+# services.greetd = {                                                      
+#   enable = true;                                                         
+#   settings = {                                                           
+#     default_session = {                                                  
+#       command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd 'startx i3'";
+#       user = "greeter";                                                  
+#     };                                                                   
+#   };                                                                     
+# };
+
+environment.pathsToLink = [ "/libexec" ]; # links /libexec from derivations to /run/current-system/sw
+
+services.xserver = {
+  enable = true;
+
+  desktopManager = {
+    xterm.enable = false;
+  };
+
+  windowManager.i3 = {
+    enable = true;
+    extraPackages = with pkgs; [
+      dmenu #application launcher most people use
+	i3status # gives you the default i3 status bar
+	i3blocks #if you are planning on using i3blocks over i3status
+    ];
+  };
 };
 
+services.displayManager.defaultSession = "none+i3";
+
+programs.i3lock.enable = true; #default i3 screen locker
 programs.starship.enable = true;
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+# Some programs need SUID wrappers, can be configured further or are
+# started in user sessions.
+# programs.mtr.enable = true;
+# programs.gnupg.agent = {
+#   enable = true;
+#   enableSSHSupport = true;
+# };
 
-  # List services that you want to enable:
+# List services that you want to enable:
 
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+# Enable the OpenSSH daemon.
+# services.openssh.enable = true;
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+# Open ports in the firewall.
+# networking.firewall.allowedTCPPorts = [ ... ];
+# networking.firewall.allowedUDPPorts = [ ... ];
+# Or disable the firewall altogether.
+# networking.firewall.enable = false;
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+# This value determines the NixOS release from which the default
+# settings for stateful data, like file locations and database versions
+# on your system were taken. It‘s perfectly fine and recommended to leave
+# this value at the release version of the first install of this system.
+# Before changing this value read the documentation for this option
+# (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.05"; # Did you read the comment?
 
 }

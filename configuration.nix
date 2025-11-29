@@ -156,6 +156,10 @@
     gcc15
     docker
     nvidia-container-toolkit
+    raylib-games
+    gemini-cli
+    transmission_4-qt
+    protonvpn-gui
   ];
 
   programs.steam = {

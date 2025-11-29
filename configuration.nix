@@ -43,6 +43,7 @@
   };
 
 # Enable the XFCE Desktop Environment.
+  services.xserver.enable = true;
   services.xserver.displayManager.lightdm.enable = true;
   services.xserver.desktopManager.xfce.enable = true;
 
@@ -97,6 +98,13 @@
 # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.cudaSupport = true;
+   # Optional: Enable the cuda-maintainers binary cache to avoid long build times
+  # This fetches pre-built CUDA packages instead of building them locally
+  nix.settings.extra-substituters = [ "cache.flox.dev" ];
+  nix.settings.extra-trusted-public-keys = [ "cache.flox.dev-1:il/msvkflxLw8qweuA4L3Q0oZz2wOqSmtXzXBk+7gHE=" ];
+  # The cache managed by the NixOS CUDA team and Flox:
+  # nix.settings.extra-substituters = [ "cuda-maintainers.cachix.org" ];
+  # nix.settings.extra-trusted-public-keys = [ "cuda-maintainers.cachix.org-1:aJf9RwVAQrnky2z0oX0yXw3b1K+a+hYhKqWJv7E2cVA=" ];
 
   hardware.graphics.enable = true;
   services.xserver.videoDrivers = [ "nvidia" ];
@@ -148,9 +156,6 @@
     gcc15
     docker
     nvidia-container-toolkit
-    (pkgs.ollama.override { 
-     acceleration = "cuda";
-     })
   ];
 
   programs.steam = {
@@ -170,46 +175,48 @@
 
   services.ollama = {
     enable = true;
-    acceleration = false;
+    acceleration = "vulkan";
   };
   services.gnome.gnome-keyring.enable = true;
 
 # enable Sway window manager
-#   programs.sway = {
-#     enable = true;
-#     wrapperFeatures.gtk = true;
-#   };
-#
-# services.greetd = {                                                      
-#   enable = true;                                                         
-#   settings = {                                                           
-#     default_session = {                                                  
-#       command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd 'startx i3'";
-#       user = "greeter";                                                  
-#     };                                                                   
-#   };                                                                     
-# };
-
-environment.pathsToLink = [ "/libexec" ]; # links /libexec from derivations to /run/current-system/sw
-
-services.xserver = {
-  enable = true;
-
-  desktopManager = {
-    xterm.enable = false;
-  };
-
-  windowManager.i3 = {
+  programs.sway = {
     enable = true;
-    extraPackages = with pkgs; [
-      dmenu #application launcher most people use
-	i3status # gives you the default i3 status bar
-	i3blocks #if you are planning on using i3blocks over i3status
-    ];
+    wrapperFeatures.gtk = true;
   };
+
+services.greetd = {                                                      
+  enable = true;                                                         
+  settings = {                                                           
+    default_session = {                                                  
+      command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd 'sway --unsupported-gpu'";
+      user = "greeter";                                                  
+    };                                                                   
+  };                                                                     
 };
 
-services.displayManager.defaultSession = "none+i3";
+# enable i3
+# environment.pathsToLink = [ "/libexec" ]; # links /libexec from derivations to /run/current-system/sw
+#
+# services.xserver = {
+#   enable = true;
+#
+#   desktopManager = {
+#     xterm.enable = false;
+#   };
+#
+#   windowManager.i3 = {
+#     enable = true;
+#     extraPackages = with pkgs; [
+#       dmenu #application launcher most people use
+# 	i3status # gives you the default i3 status bar
+# 	i3blocks #if you are planning on using i3blocks over i3status
+#     ];
+#   };
+# };
+#
+# services.displayManager.defaultSession = "none+i3";
+# end enable i3
 
 programs.i3lock.enable = true; #default i3 screen locker
 programs.starship.enable = true;
@@ -240,5 +247,4 @@ programs.starship.enable = true;
 # Before changing this value read the documentation for this option
 # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.05"; # Did you read the comment?
-
 }

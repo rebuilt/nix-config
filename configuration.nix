@@ -10,6 +10,30 @@
     /etc/nixos/hardware-configuration.nix
     ];
 
+
+    fileSystems."/home/nelson/drives/970_evo" = {
+      device = "/dev/nvme0n1p2"; # You can also use device paths if preferred
+      fsType = "auto";
+      options = [ "nofail" "x-gvfs-show" ];
+    };
+
+    fileSystems."/home/nelson/drives/windows" = {
+      device = "/dev/sdb3"; # You can also use device paths if preferred
+      fsType = "auto";
+      options = [ "nofail" "x-gvfs-show" ];
+    };
+
+    fileSystems."/home/nelson/drives/crucial" = {
+      device = "/dev/sdc1"; # You can also use device paths if preferred
+      fsType = "auto";
+      options = [ "nofail" "x-gvfs-show" ];
+    };
+
+    fileSystems."/home/nelson/drives/barracuda" = {
+      device = "/dev/sda1"; # You can also use device paths if preferred
+      fsType = "auto";
+      options = [ "nofail" "x-gvfs-show" ];
+    };
 # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;

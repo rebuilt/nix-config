@@ -68,8 +68,8 @@
 
 # Enable the XFCE Desktop Environment.
   services.xserver.enable = true;
-  services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.desktopManager.xfce.enable = true;
+  # services.xserver.displayManager.lightdm.enable = true;
+  # services.xserver.desktopManager.xfce.enable = true;
 
 # Configure keymap in X11
   services.xserver.xkb = {
@@ -122,13 +122,6 @@
 # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.cudaSupport = true;
-   # Optional: Enable the cuda-maintainers binary cache to avoid long build times
-  # This fetches pre-built CUDA packages instead of building them locally
-  nix.settings.extra-substituters = [ "cache.flox.dev" ];
-  nix.settings.extra-trusted-public-keys = [ "cache.flox.dev-1:il/msvkflxLw8qweuA4L3Q0oZz2wOqSmtXzXBk+7gHE=" ];
-  # The cache managed by the NixOS CUDA team and Flox:
-  # nix.settings.extra-substituters = [ "cuda-maintainers.cachix.org" ];
-  # nix.settings.extra-trusted-public-keys = [ "cuda-maintainers.cachix.org-1:aJf9RwVAQrnky2z0oX0yXw3b1K+a+hYhKqWJv7E2cVA=" ];
 
   hardware.graphics.enable = true;
   services.xserver.videoDrivers = [ "nvidia" ];
@@ -150,40 +143,58 @@
 # $ nix search wget
   environment.systemPackages = with pkgs; [
 
-    xclip
-    vim
-    neovim
-    git
-    tealdeer
-    wireplumber
-    go
-    rustup
-    cargo
-    wiremix
-    btop
+    #terminals
     ghostty
-    fzf
+    kitty
+    neovim
+
+    bartib
+    bash-completion
     bat
+    btop
+    # calibre
+    cargo
     choose
+    chromium
+    clipman
+    discord
+    docker
     dust
     fd
+    feh
+    fzf
+    gcc15
+    gdb
+    gemini-cli
+    gimp
+    git
+    gnumake
+    go
     hyperfine
     jql
+    libgcc
+    mise
+    nasm
+    nmap
+    pandoc
+    procs
+    protonvpn-gui
+    raylib-games
     ripgrep
     rm-improved
-    zoxide
+    rustup
+    slack
     starship
-    bartib
-    mise
-    libgcc
-    gnumake
-    gcc15
-    docker
-    nvidia-container-toolkit
-    raylib-games
-    gemini-cli
+    stow
+    tealdeer
+    xfce.thunar
     transmission_4-qt
-    protonvpn-gui
+    vim
+    vlc
+    wiremix
+    wireplumber
+    zoom
+    zoxide
   ];
 
   programs.steam = {
@@ -223,30 +234,6 @@ services.greetd = {
   };                                                                     
 };
 
-# enable i3
-# environment.pathsToLink = [ "/libexec" ]; # links /libexec from derivations to /run/current-system/sw
-#
-# services.xserver = {
-#   enable = true;
-#
-#   desktopManager = {
-#     xterm.enable = false;
-#   };
-#
-#   windowManager.i3 = {
-#     enable = true;
-#     extraPackages = with pkgs; [
-#       dmenu #application launcher most people use
-# 	i3status # gives you the default i3 status bar
-# 	i3blocks #if you are planning on using i3blocks over i3status
-#     ];
-#   };
-# };
-#
-# services.displayManager.defaultSession = "none+i3";
-# end enable i3
-
-programs.i3lock.enable = true; #default i3 screen locker
 programs.starship.enable = true;
 
 # Some programs need SUID wrappers, can be configured further or are

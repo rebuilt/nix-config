@@ -159,7 +159,9 @@
     clipman
     discord
     docker
+    duf
     dust
+    eza
     fd
     feh
     fzf
@@ -186,6 +188,7 @@
     slack
     starship
     stow
+    stylua
     tealdeer
     xfce.thunar
     transmission_4-qt
@@ -200,8 +203,8 @@
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-      dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
-      localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+    dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
   };
 
 
